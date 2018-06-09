@@ -20,19 +20,19 @@ def main():
     print("These conversations are encrypted with AES-128.")
     print("When the program is closed, the conversation will be lost")
     response = input("Do you need to create a new channel? (yes/no): ")
-    # creates a new channel (IOTA address) and AES key or prompts for entry of both values (currently hard-coded)
+    # creates a new channel (IOTA address) and AES key or prompts for entry of both values
     if response.lower() == 'yes' or response.lower() == 'y':
-        #address = make_node_address()
-        address = "LHCNQLKHAUFNPIKQGEHBPFUWSARZPQHOKDWBSNDQMZQBDFUBAVFQXUJOEOQIZRVQRCHZWJVQAUBHUDOYC"
+        address = make_node_address()
         print("Please provide this channel address to the intended chat partner:")
         print("address:", address)
         decoder_key = ""
         while len(decoder_key) != 16:
-            decoder_key = "aaaaaaaaaaaaaaaa"
-            #decoder_key = input("Please create/enter the 16 character key of the channel: ")
+            decoder_key = input("Please create a 16 character key for the channel: ")
     else:
         address = input("Please input the address of the channel you'd like to join: ")
-        decoder_key = "aaaaaaaaaaaaaaaa"
+        decoder_key = ""
+        while len(decoder_key) != 16:
+            decoder_key = input("Please enter the 16 character key for the channel: ")
     
     print("decoder key:", decoder_key)
 
@@ -86,7 +86,5 @@ def get_reload_messages(chat_room, message_list, decoder_key, iv):
         obj2 = AES.new(decoder_key, AES.MODE_CFB, iv)
         decoded = obj2.decrypt(base64.urlsafe_b64decode(message))
         print(decoded.decode())
-
-
 
 main()
