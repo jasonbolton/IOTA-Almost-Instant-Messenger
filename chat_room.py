@@ -2,7 +2,6 @@
 
 from iota import *
 import base64
-from Crypto import Random
 from Crypto.Cipher import AES
 import random
 import time
@@ -11,11 +10,12 @@ class ChatRoom:
     # this class takes in an IOTA address and begins
     # a 'chat-room' which can retrieve messages at that
     # address
-    def __init__(self, address, decoder_key):
+    def __init__(self, address=None, decoder_key=None):
         self._node = 'http://nodes.iota.fm:80'
         self._api = Iota(self._node)
         self._address = address
-        self._decoder_key = str.encode(decoder_key)
+        if decoder_key != None:
+            self._decoder_key = str.encode(decoder_key)
         self._finished_transactions = {}
         self._message_list = []
         # initializes block size
@@ -106,18 +106,25 @@ class ChatRoom:
             message = message.decode()
             message = str.encode(message)
             obj2 = AES.new(self._decoder_key, AES.MODE_CFB, self._iv)
-            print(message)
             decoded = obj2.decrypt(base64.urlsafe_b64decode(message))
-            print(decoded)
-            print(decoded.decode())
             return_list.append(decoded.decode())
         return return_list
 
-class ControlProgram():
-
-    def __init__(self):
-        self._node = 'http://node03.iotatoken.nl:15265'
-        self._api = Iota(self._node)
+    def make_decoder_key(self):
+        key = "catsssssssssssss"
+##        for i in range(16):
+##            x = random.randint(1, 5)
+##            if x <= 3:
+##                y = random.randint(1, 2)
+##                z = random.randint(65, 90)
+##                if y == 1:
+##                    key += chr(z)
+##                else:
+##                    key += chr(z).lower()
+##            else:
+##                z = random.randint(1, 9)
+##                key += str(z)
+        return key
 
     def make_node_address(self):
         # creates an IOTA api instance in order to generate an IOTA address.
@@ -126,8 +133,3 @@ class ControlProgram():
         address = gna_result['addresses'][0]
         return address
 
-    def make_decoder_key(self):
-        key = "catsssssssssssss"
-##        for i in range(16):
-##            pass
-        return key

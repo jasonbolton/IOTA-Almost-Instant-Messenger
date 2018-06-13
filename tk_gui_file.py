@@ -1,20 +1,20 @@
 import tkinter as tk
 from tkinter import scrolledtext
-from main import ControlProgram
-from chat_room import ChatRoom, ControlProgram
+from chat_room import ChatRoom
 
 class App(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
+        self.iconbitmap('images\j_icon.ico')
         self.switch_frame(StartPage)
         self.title("IOTA Almost-Instant Messenger")
         self.geometry("600x350")
-        self._control_program = ControlProgram()
-        self._chat_room = None
+        #self._control_program = ChatRoom()
+        self._chat_room = ChatRoom()
 
     def switch_frame(self, frame_class):
-        """Destroys current frame and replaces it with a new one."""
+        # destroys current frame and replaces it
         new_frame = frame_class(self)
         if self._frame is not None:
             self._frame.destroy()
@@ -63,13 +63,15 @@ class StartPage(tk.Frame):
         self._page_1_button.pack()
 
     def switch_screen(self, master):
+        self._address = self._address_entry.get()
+        self._key = self._key_entry.get()
         if self._address != "" and len(self._address) == 81 and \
            self._key != "" and len(self._key) == 16:
             master.make_chat_room(self._address, self._key)
             master.switch_frame(PageOne)
 
     def make_address(self, master):
-        self._address = master._control_program.make_node_address()
+        self._address = master._chat_room.make_node_address()
         self._address_entry.delete(0, 81)
         self._address_entry.insert(0, self._address)
         print(self._address)
@@ -81,7 +83,7 @@ class StartPage(tk.Frame):
         print(self._address)
 
     def make_key(self, master):
-        self._key = master._control_program.make_decoder_key()
+        self._key = master._chat_room.make_decoder_key()
         self._key_entry.delete(0, 81)
         self._key_entry.insert(0, self._key)
         print(self._key)
@@ -91,13 +93,6 @@ class StartPage(tk.Frame):
         self._key_entry.delete(0, 81)
         self._key_entry.insert(0, self._key)
         print(self._key)
-
-    def get_address(self):
-        return self._address
-
-    def get_key(self):
-        return self._key
-
 
 class PageOne(tk.Frame):
     def __init__(self, master):
@@ -133,8 +128,6 @@ class PageOne(tk.Frame):
             self.refresh(master)
             for message in self._chat_messages:
                 self._chat_box.insert(0.0, message)
-            print(self._chat_messages)
-            #self._chat_messages = self._chat_messages[::-1]
             self._chat_box.config(state="disabled")
 
     def refresh(self, master):
@@ -145,10 +138,7 @@ class PageOne(tk.Frame):
         for message in self._chat_messages:
             self._chat_box.insert(0.0, "\n")
             self._chat_box.insert(0.0, message)
-        print(self._chat_messages)
-        self._chat_messages = self._chat_messages[::-1]
-        self._chat_box.config(state="disabled")
-        
+        self._chat_box.config(state="disabled")        
         
 if __name__ == "__main__":
     app = App()
