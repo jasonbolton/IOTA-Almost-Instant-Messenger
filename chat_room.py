@@ -1,18 +1,26 @@
+# need iota, pycryptodome
+
 from iota import *
+import base64
+from Crypto import Random
+from Crypto.Cipher import AES
+import random
+import time
 
 class ChatRoom:
     # this class takes in an IOTA address and begins
     # a 'chat-room' which can retrieve messages at that
     # address
-    def __init__(self, address):
-        self._node = 'http://node03.iotatoken.nl:15265'
+    def __init__(self, address, decoder_key):
+        self._node = 'http://nodes.iota.fm:80'
         self._api = Iota(self._node)
         self._address = address
-
+        self._decoder_key = str.encode(decoder_key)
         self._finished_transactions = {}
-
-    def get_address(self):
-        return self._address
+        self._message_list = []
+        # initializes block size
+        #iv = Random.new().read(AES.block_size)
+        self._iv = b'0000000000000000'
 
     def get_transactions(self):
         # this method cycles through the transactions
@@ -36,3 +44,90 @@ class ChatRoom:
         print("Complete")
         print()
         return self._new_transactions
+
+    def make_random_tag(self):
+        # this method constructs a random tag to include
+        # in outgoing transactions.
+        construct_tag = ""
+        for i in range(27):
+            rand_char = chr(random.randint(80, 90))
+            construct_tag += rand_char
+        construct_tag = TryteString.from_unicode(construct_tag)
+        if len(construct_tag) > 27:
+            excess = len(construct_tag) - 27
+            construct_tag = construct_tag[excess:]
+        return construct_tag
+
+    def send_message(self, message):
+        # a random tag transaction with a passed-in
+        # pre-encrypted message is sent using this method.
+        random_tag = self.make_random_tag()
+        message = str.encode(message)
+        obj = AES.new(self._decoder_key, AES.MODE_CFB, self._iv)
+        encoded = base64.urlsafe_b64encode(obj.encrypt(message))
+        encoded = str(encoded, 'utf-8')
+        encoded = TryteString.from_unicode(encoded)
+        send_confirmation = False
+        while not send_confirmation:
+            try:
+                print("Sending message to the tangle...")
+                self._api.send_transfer(
+                  depth = 100,
+                  transfers = [
+                    ProposedTransaction(
+                      address =
+                        Address(
+                          self._address,
+                        ),
+                      value = 0,
+                      tag = Tag(random_tag),
+                      message = encoded,
+                    ),
+                  ],
+                )
+                send_confirmation = True
+                print("The message was successfully attached to the tangle")
+                print()
+            except:
+                print("Error: Retrying tangle attachment")
+                print()
+                time.sleep(2)
+                pass
+            
+    def get_reload_messages(self):
+        # using the chat-room class object, checks the tangle for messages
+        # at the given address. decodes each message and prints to console.
+        return_list = []
+        new_messages = self.get_transactions()
+        for message in new_messages:
+            self._message_list.append(message)
+            
+        for message in self._message_list:
+            message = message.decode()
+            message = str.encode(message)
+            obj2 = AES.new(self._decoder_key, AES.MODE_CFB, self._iv)
+            print(message)
+            decoded = obj2.decrypt(base64.urlsafe_b64decode(message))
+            print(decoded)
+            print(decoded.decode())
+            return_list.append(decoded.decode())
+        return return_list
+
+class ControlProgram():
+
+    def __init__(self):
+        self._node = 'http://node03.iotatoken.nl:15265'
+        self._api = Iota(self._node)
+
+    def make_node_address(self):
+        # creates an IOTA api instance in order to generate an IOTA address.
+        # a proof-of-work node is required. 
+        gna_result = self._api.get_new_addresses()
+        address = gna_result['addresses'][0]
+        return address
+
+    def make_decoder_key(self):
+        key = "catsssssssssssss"
+##        for i in range(16):
+##            pass
+        return key
