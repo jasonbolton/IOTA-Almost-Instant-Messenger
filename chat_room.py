@@ -1,17 +1,14 @@
-# need iota, pycryptodome
-
 from iota import *
 import base64
 from Crypto.Cipher import AES
 import random
-import time
 
 class ChatRoom:
     # this class takes in an IOTA address and begins
     # a 'chat-room' which can retrieve messages at that
-    # address
+    # address.
     def __init__(self, address=None, decoder_key=None):
-        self._node = 'http://nodes.iota.fm:80'
+        self._node = 'http://nodes.iota.fm:8077'
         self._api = Iota(self._node)
         self._address = address
         if decoder_key != None:
@@ -91,7 +88,6 @@ class ChatRoom:
             except:
                 print("Error: Retrying tangle attachment")
                 print()
-                time.sleep(2)
                 pass
             
     def get_reload_messages(self):
@@ -101,7 +97,6 @@ class ChatRoom:
         new_messages = self.get_transactions()
         for message in new_messages:
             self._message_list.append(message)
-            
         for message in self._message_list:
             message = message.decode()
             message = str.encode(message)
@@ -111,25 +106,25 @@ class ChatRoom:
         return return_list
 
     def make_decoder_key(self):
-        key = "catsssssssssssss"
-##        for i in range(16):
-##            x = random.randint(1, 5)
-##            if x <= 3:
-##                y = random.randint(1, 2)
-##                z = random.randint(65, 90)
-##                if y == 1:
-##                    key += chr(z)
-##                else:
-##                    key += chr(z).lower()
-##            else:
-##                z = random.randint(1, 9)
-##                key += str(z)
+        # makes a decoder key for the AES encryption.
+        for i in range(16):
+            x = random.randint(1, 5)
+            if x <= 3:
+                y = random.randint(1, 2)
+                z = random.randint(65, 90)
+                if y == 1:
+                    key += chr(z)
+                else:
+                    key += chr(z).lower()
+            else:
+                z = random.randint(1, 9)
+                key += str(z)
         return key
 
     def make_node_address(self):
         # creates an IOTA api instance in order to generate an IOTA address.
-        # a proof-of-work node is required. 
+        # a proof-of-work node is required.
         gna_result = self._api.get_new_addresses()
         address = gna_result['addresses'][0]
         return address
-
+    
