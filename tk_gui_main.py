@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import scrolledtext, PhotoImage, Image
+from tkinter import scrolledtext
 from chat_room import ChatRoom
 
 class App(tk.Tk):
