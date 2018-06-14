@@ -8,7 +8,7 @@ class ChatRoom:
     # a 'chat-room' which can retrieve messages at that
     # address.
     def __init__(self, address=None, decoder_key=None):
-        self._node = 'http://nodes.iota.fm:8077'
+        self._node = 'http://nodes.iota.fm:80'
         self._api = Iota(self._node)
         self._address = address
         if decoder_key != None:
@@ -107,6 +107,7 @@ class ChatRoom:
 
     def make_decoder_key(self):
         # makes a decoder key for the AES encryption.
+        key = ""
         for i in range(16):
             x = random.randint(1, 5)
             if x <= 3:

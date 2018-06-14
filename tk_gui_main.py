@@ -6,7 +6,7 @@ class App(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
-        self.iconbitmap("images\j_icon.ico")
+        self.iconbitmap("images\icon.ico")
         self.switch_frame(StartPage)
         self.title("IOTA Almost-Instant Messenger")
         self.geometry("600x350")
