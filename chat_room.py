@@ -2,6 +2,7 @@ from iota import *
 import base64
 from Crypto.Cipher import AES
 import random
+import time
 
 class ChatRoom:
     # this class takes in an IOTA address and begins
@@ -69,7 +70,7 @@ class ChatRoom:
             try:
                 print("Sending message to the tangle...")
                 self._api.send_transfer(
-                  depth = 100,
+                  depth = 3,
                   transfers = [
                     ProposedTransaction(
                       address =
@@ -88,6 +89,7 @@ class ChatRoom:
             except:
                 print("Error: Retrying tangle attachment")
                 print()
+                time.sleep(2)
                 pass
             
     def get_reload_messages(self):
